@@ -1,5 +1,7 @@
 **/bin
+**/obj
 /server/bin
+/server/obj
 
 # misc
 .DS_Store
