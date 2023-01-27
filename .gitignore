@@ -2,6 +2,8 @@
 **/obj
 /server/bin
 /server/obj
+/client/node_modules
+/client/.next
 
 # misc
 .DS_Store
