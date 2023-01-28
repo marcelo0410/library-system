@@ -23,10 +23,10 @@ namespace server.Controllers
             return Ok(await _context.books.ToListAsync());
         }
 
-        [HttpGet("{ID}")]
-        public async Task<ActionResult<Book>> GetBookByID(string ID)
+        [HttpGet("{Id}")]
+        public async Task<ActionResult<Book>> GetBookByID(string Id)
         {
-            var book = await _context.books.FindAsync(ID);
+            var book = await _context.books.FindAsync(Id);
             if(book == null)
                 return BadRequest("Book not find ");
             return Ok(book);
@@ -43,7 +43,7 @@ namespace server.Controllers
         [HttpPut]
         public async Task<ActionResult<List<Book>>> UpdateBook(Book request)
         {
-            var dbbook = await _context.books.FindAsync(request.ID);
+            var dbbook = await _context.books.FindAsync(request.Id);
             if(dbbook == null)
                 return BadRequest("Book not find ");
 
@@ -56,9 +56,9 @@ namespace server.Controllers
         }
 
         [HttpDelete("{ID}")]
-        public async Task<ActionResult<Book>> DeleteBookByID(string ID)
+        public async Task<ActionResult<Book>> DeleteBookByID(string Id)
         {
-            var dbbook = await _context.books.FindAsync(ID);
+            var dbbook = await _context.books.FindAsync(Id);
             if(dbbook == null)
                 return BadRequest("Book not find ");
             _context.books.Remove(dbbook);
