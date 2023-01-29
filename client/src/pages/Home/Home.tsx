@@ -18,12 +18,13 @@ const suffix = (
   />
 );
 
-
-
 const onChange: TableProps<Book>['onChange'] = (pagination, filters, sorter, extra) => {
   console.log('params', pagination, filters, sorter, extra);
 };
 
+/**
+ * 
+ */
 const Home: React.FC = () => {
 
     const [bookData, setBookData] = useState<Book[]>([]);
@@ -31,12 +32,12 @@ const Home: React.FC = () => {
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [modalText, setModalText] = useState('Do you want to borrow this book?');
-
-
-    const [first, setFirst] = useState();
     
     useEffect(() => {
-        fetchBooks().then(data => {setBookData(data.data); setFilteredBooks(data.data);});
+        fetchBooks().then(data => {
+          setBookData(data.data); 
+          setFilteredBooks(data.data);
+        });
     }, [])
 
     const onChangeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,37 +51,19 @@ const Home: React.FC = () => {
         setOpen(true);
       };
     
-    const handleOk = (event,targetBook: Book) => {
-        generateBorrowing(targetBook);
-        setConfirmLoading(true);
-        setTimeout(() => {
-            setOpen(false);
-            setConfirmLoading(false);
-        }, 5000);
-        window.location.reload();
-    };
-
-    const generateBorrowing = (targetBook: Book) => {
-      let postBorrowingData = {id: uuidv4().toString(), borrowNo: generateBorrowNumber(), userId: "1", bookId: targetBook.id.toString(), dateOfBorrow: new Date().toISOString(), dueDate: generateDueDate(30)};
-      // createBorrowing(postBorrowingData);
-      updateBookStatus(targetBook);
-      setModalText(`Borrowing No. ${postBorrowingData.borrowNo}
-      UserId: ${postBorrowingData.userId}
-      Book Title: ${targetBook.title}
-      BorrowedDate: ${postBorrowingData.dateOfBorrow}
-      DueDate: ${postBorrowingData.dueDate}`);
-
       
-    }
-
-
-    const handleCancel = () => {
-        console.log('Clicked cancel button');
-        setOpen(false);
-    };
-
-
-    const columns: ColumnsType<Book> = [
+      const generateBorrowing = (targetBook: Book) => {
+        let postBorrowingData = {id: uuidv4().toString(), borrowNo: generateBorrowNumber(), userId: "1", bookId: targetBook.id.toString(), dateOfBorrow: new Date().toISOString(), dueDate: generateDueDate(30)};
+        // createBorrowing(postBorrowingData);
+        updateBookStatus(targetBook);
+        setModalText(`Borrowing No. ${postBorrowingData.borrowNo}
+        UserId: ${postBorrowingData.userId}
+        Book Title: ${targetBook.title}
+        BorrowedDate: ${postBorrowingData.dateOfBorrow}
+        DueDate: ${postBorrowingData.dueDate}`);
+      }
+      
+      const columns: ColumnsType<Book> = [
         {
           title: 'Title',
           dataIndex: 'title',
@@ -138,9 +121,23 @@ const Home: React.FC = () => {
         }
       ];
 
+    const handleOk = (event,targetBook: Book) => {
+      generateBorrowing(targetBook);
+      setConfirmLoading(true);
+      setTimeout(() => {
+          setOpen(false);
+          setConfirmLoading(false);
+      }, 5000);
+      window.location.reload();
+    };
+    
+    const handleCancel = () => {
+      console.log('Clicked cancel button');
+      setOpen(false);
+    };
+
     return (
         <div>
-            {JSON.stringify(first)}
             <Space direction='vertical'>
                 <Input
                     placeholder="input search text"
