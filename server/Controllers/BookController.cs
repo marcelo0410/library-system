@@ -55,7 +55,7 @@ namespace server.Controllers
             return Ok(await _context.books.ToListAsync());
         }
 
-        [HttpDelete("{ID}")]
+        [HttpDelete("{Id}")]
         public async Task<ActionResult<Book>> DeleteBookByID(string Id)
         {
             var dbbook = await _context.books.FindAsync(Id);

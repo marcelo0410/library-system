@@ -1,61 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import { Table, Space, Input } from 'antd';
+import { v4 as uuidv4 } from 'uuid';
+import { Table, Space, Input, Modal, Button } from 'antd';
 import { AudioOutlined } from '@ant-design/icons';
-
 import type { ColumnsType, TableProps } from 'antd/es/table';
-import { fetchBooks } from '../../api/index';
+import { fetchBooks, fetchBorrowing } from '../../api/index';
 import { Book } from '../../common/interface';
+import { getFullDate, generateBorrowNumber, generateDueDate } from '../../common/util';
 
 
-const columns: ColumnsType<Book> = [
-  {
-    title: 'Title',
-    dataIndex: 'title',
-    width: '15%',
-  },
-  {
-    title: 'publisher',
-    dataIndex: 'publisher',
-    width: '15%',
-  },
-  {
-    title: 'Published At',
-    dataIndex: 'dateOfPublication',
-    render: ((date:string) => getFullDate(date)),
-    width: '15%',
-  },
-  {
-    title: 'Status',
-    dataIndex: 'isBorrowed',
-    render: (text, record) => {
-        return {
-            props: {
-                style: {color: !record.isBorrowed ? "green" : "red" }
-            },
-            children: <div>{!text? 'Available':'Unavailable'}</div>
-        }
-    },
-    width: '15%',
-  },
-  {
-    title: '',
-    dataIndex: 'isBorrowed',
-    render: (_, record) => (
-      <Space size="middle" >
-        {!record.isBorrowed? <a style={{color:"orange"}}>Borrow</a>: <></>}
-      </Space>
-    ),
-    width: '20%',
-  }
-];
-
-const getFullDate = (date: string): string => {
-    const dateAndTime = date.split('T');
-
-    return dateAndTime[0].split('-').reverse().join('-');
-};
-
-const { Search } = Input;
 
 const suffix = (
   <AudioOutlined
@@ -66,8 +18,10 @@ const suffix = (
   />
 );
 
-
-
+const generateBorrowing = (targetBook: Book) => {
+  let postDataBook = {id: uuidv4(), borrowNo: generateBorrowNumber(), userId: "1", bookId: targetBook.id, dateOfBorrow: Date.now().toString(), dueDate: generateDueDate()};
+  console.log(postDataBook);
+}
 
 const onChange: TableProps<Book>['onChange'] = (pagination, filters, sorter, extra) => {
   console.log('params', pagination, filters, sorter, extra);
@@ -77,7 +31,17 @@ const Home: React.FC = () => {
 
     const [bookData, setBookData] = useState<Book[]>([]);
     const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
-    const [value, setValue] = useState<string>('');
+    const [open, setOpen] = useState(false);
+    const [confirmLoading, setConfirmLoading] = useState(false);
+    const [modalText, setModalText] = useState('Do you want to borrow this book?');
+
+
+    const [first, setFirst] = useState();
+    
+    useEffect(() => {
+        fetchBooks().then(data => {setBookData(data.data); setFilteredBooks(data.data);});
+        fetchBorrowing().then(data => {setFirst(data.data)});
+    }, [])
 
     const onChangeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
         const filteredData = bookData.filter(entry =>
@@ -86,12 +50,87 @@ const Home: React.FC = () => {
         setFilteredBooks(filteredData);
     }
 
-    useEffect(() => {
-        fetchBooks().then(data => {setBookData(data.data); setFilteredBooks(data.data);});
-    }, [])
+    const showModal = () => {
+        setOpen(true);
+      };
+    
+    const handleOk = (event,targetBook: Book) => {
+        generateBorrowing(targetBook);
+        setConfirmLoading(true);
+        setTimeout(() => {
+            setOpen(false);
+            setConfirmLoading(false);
+        }, 2000);
+    };
+
+
+    const handleCancel = () => {
+        console.log('Clicked cancel button');
+        setOpen(false);
+    };
+
+
+    const columns: ColumnsType<Book> = [
+        {
+          title: 'Title',
+          dataIndex: 'title',
+          width: '15%',
+        },
+        {
+          title: 'publisher',
+          dataIndex: 'publisher',
+          width: '15%',
+        },
+        {
+          title: 'Published At',
+          dataIndex: 'dateOfPublication',
+          render: ((date:string) => getFullDate(date)),
+          width: '15%',
+        },
+        {
+          title: 'Status',
+          dataIndex: 'isBorrowed',
+          render: (text, record) => {
+              return {
+                  props: {
+                      style: {color: !record.isBorrowed ? "green" : "red" }
+                  },
+                  children: <div>{!text? 'Available':'Unavailable'}</div>
+              }
+          },
+          width: '15%',
+        },
+        {
+          title: '',
+          dataIndex: 'isBorrowed',
+          render: (_, record) => (
+            <Space size="middle" >
+              {!record.isBorrowed? 
+              <>
+                <Button type="primary" onClick={showModal}>
+                    Borrow
+                </Button>
+                <Modal
+                    title="Confirm"
+                    open={open}
+                    onOk={(event) => {
+                      handleOk(event, record);
+                    }}
+                    confirmLoading={confirmLoading}
+                    onCancel={handleCancel}
+                >
+                    <p>{modalText}</p>
+                </Modal>
+                </>: <></>}
+            </Space>
+          ),
+          width: '20%',
+        }
+      ];
 
     return (
         <div>
+            {JSON.stringify(first)}
             <Space direction='vertical'>
                 <Input
                     placeholder="input search text"
@@ -100,7 +139,7 @@ const Home: React.FC = () => {
                     onChange={(event) => onChangeInput(event)}
                 />
             </Space>
-            <Table columns={columns} dataSource={filteredBooks} onChange={onChange} />
+            <Table columns={columns} dataSource={filteredBooks} onChange={onChange}/>
         </div>
         
     )
