@@ -17,8 +17,7 @@ Library system is a simple web application for user to borrow a book from the sy
 
 ### Back End
 * Asp.net
-
-### MISC
+* Entity Framework
 * SQL Server
 * Docker
 
@@ -40,12 +39,4 @@ Builds a project and all of its dependencies.
 Runs source code without any explicit compile or launch commands.
 
 
-
-```json
-    "size-limit": [
-    {
-        "path": "index.js",
-        "import": "{ createStore }",
-        "limit": "500 ms"
-    }
     ]
