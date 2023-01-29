@@ -40,7 +40,7 @@ namespace server.Controllers
             return Ok(await _context.books.ToListAsync());
         }
 
-        [HttpPut]
+        [HttpPut("status")]
         public async Task<ActionResult<List<Book>>> UpdateBook(Book request)
         {
             var dbbook = await _context.books.FindAsync(request.Id);
@@ -50,7 +50,7 @@ namespace server.Controllers
             dbbook.Title = request.Title;
             dbbook.Publisher = request.Publisher;
             dbbook.DateOfPublication = request.DateOfPublication;
-            dbbook.IsBorrowed = request.IsBorrowed;
+            dbbook.IsBorrowed = !request.IsBorrowed;
             await _context.SaveChangesAsync();
             return Ok(await _context.books.ToListAsync());
         }

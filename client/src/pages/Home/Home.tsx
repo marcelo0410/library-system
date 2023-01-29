@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Table, Space, Input, Modal, Button } from 'antd';
 import { AudioOutlined } from '@ant-design/icons';
 import type { ColumnsType, TableProps } from 'antd/es/table';
-import { fetchBooks, fetchBorrowing } from '../../api/index';
+import { fetchBooks, fetchBorrowing, createBorrowing, updateBookStatus } from '../../api/index';
 import { Book } from '../../common/interface';
 import { getFullDate, generateBorrowNumber, generateDueDate } from '../../common/util';
 
@@ -18,10 +18,7 @@ const suffix = (
   />
 );
 
-const generateBorrowing = (targetBook: Book) => {
-  let postDataBook = {id: uuidv4(), borrowNo: generateBorrowNumber(), userId: "1", bookId: targetBook.id, dateOfBorrow: Date.now().toString(), dueDate: generateDueDate()};
-  console.log(postDataBook);
-}
+
 
 const onChange: TableProps<Book>['onChange'] = (pagination, filters, sorter, extra) => {
   console.log('params', pagination, filters, sorter, extra);
@@ -40,7 +37,6 @@ const Home: React.FC = () => {
     
     useEffect(() => {
         fetchBooks().then(data => {setBookData(data.data); setFilteredBooks(data.data);});
-        fetchBorrowing().then(data => {setFirst(data.data)});
     }, [])
 
     const onChangeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,8 +56,22 @@ const Home: React.FC = () => {
         setTimeout(() => {
             setOpen(false);
             setConfirmLoading(false);
-        }, 2000);
+        }, 5000);
+        window.location.reload();
     };
+
+    const generateBorrowing = (targetBook: Book) => {
+      let postBorrowingData = {id: uuidv4().toString(), borrowNo: generateBorrowNumber(), userId: "1", bookId: targetBook.id.toString(), dateOfBorrow: new Date().toISOString(), dueDate: generateDueDate(30)};
+      // createBorrowing(postBorrowingData);
+      updateBookStatus(targetBook);
+      setModalText(`Borrowing No. ${postBorrowingData.borrowNo}
+      UserId: ${postBorrowingData.userId}
+      Book Title: ${targetBook.title}
+      BorrowedDate: ${postBorrowingData.dateOfBorrow}
+      DueDate: ${postBorrowingData.dueDate}`);
+
+      
+    }
 
 
     const handleCancel = () => {

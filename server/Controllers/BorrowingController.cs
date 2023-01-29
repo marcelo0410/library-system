@@ -33,7 +33,7 @@ namespace server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<List<Borrowing>>> AddBorrowing(Borrowing borrowing)
+        public async Task<ActionResult<List<Borrowing>>> AddBorrowing([FromBody]Borrowing borrowing)
         {
             _context.borrowings.Add(borrowing);
             await _context.SaveChangesAsync();
