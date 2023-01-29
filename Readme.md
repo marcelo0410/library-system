@@ -37,6 +37,3 @@ Builds a project and all of its dependencies.
 
 ### `dotnet run`
 Runs source code without any explicit compile or launch commands.
-
-
-    ]
